@@ -1,37 +1,24 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
-
-app = FastAPI()
-
-# Allow all CORS (you can tighten this later)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Define request model
-class PromptRequest(BaseModel):
-    input: str
-    type: str  # e.g. "next-line", "rewrite", etc.
-
 @app.post("/prompt")
-async def generate_prompt(prompt_request: PromptRequest):
-    input_text = prompt_request.input
-    prompt_type = prompt_request.type
+def generate_prompt(request: PromptRequest):
+    input_text = request.input
+    prompt_type = request.type
 
-    # Define how each type should be handled
-    if prompt_type == "next-line":
-        return {"result": f"Next line suggestion for: {input_text}"}
-    elif prompt_type == "rewrite":
-        return {"result": f"Rewritten version of: {input_text}"}
-    elif prompt_type == "finish":
-        return {"result": f"Completed version of: {input_text}"}
-    elif prompt_type == "inspire":
-        return {"result": f"Inspiration based on: {input_text}"}
-    elif prompt_type == "hook":
-        return {"result": f"Hook suggestion for: {input_text}"}
-    else:
+    # Define the different prompt instructions
+    instructions = {
+        "next-line": f"Continue the next line of this verse: {input_text}",
+        "rewrite": f"Rewrite the following lyrics in a different style: {input_text}",
+        "hook": f"Write a catchy chorus (hook) based on: {input_text}",
+        "finish": f"Finish this short verse: {input_text}",
+        "inspire": f"Generate creative inspiration based on: {input_text}",
+        "finish-verse": f"Complete the verse based on this start: {input_text}"  # <-- add this
+    }
+
+    if prompt_type not in instructions:
         return {"result": f"Unknown prompt type: {prompt_type}"}
+
+    full_prompt = instructions[prompt_type]
+
+    # Simulated AI output (replace with real call)
+    ai_output = f"{instructions[prompt_type]} 🔥"
+
+    return {"result": ai_output}
